@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* --background: #ffffff;
+  --foreground: #171717; */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@theme {
+  --color-primary: #ed87cf;
+  --color-danger: #f52a2a;
+
+  --color-text-primary: white;
+  --color-text-secondary: black;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,4 +24,36 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-text-primary px-4 py-2 rounded-lg hover:bg-primary hover:text-text-secondary transition;
+  }
+
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm;
+  }
+
+  /* MODAL BOX */
+  .modal-container {
+    @apply w-full max-w-lg rounded-xl bg-white shadow-xl;
+    /* @apply animate-fade-in; */
+  }
+
+  .modal-header {
+    @apply flex items-center justify-between border-b border-gray-200 px-5 py-3;
+  }
+
+  .modal-title {
+    @apply text-lg font-semibold text-gray-800;
+  }
+
+  .modal-close {
+    @apply rounded-md px-2 py-1 text-gray-500 hover:bg-gray-100 hover:text-gray-800;
+  }
+
+  .modal-body {
+    @apply p-5 text-gray-700;
+  }
 }
