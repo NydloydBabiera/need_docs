@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
         const formData = await req.formData();
 
         const file = formData.get("file");
+        console.log("🚀 ~ POST ~ file:", file)
 
         if (!file || !(file instanceof File)) {
             return NextResponse.json(
@@ -28,6 +29,7 @@ export async function POST(req: NextRequest) {
             body: uploadForm,
             signal: controller.signal,
         });
+        console.log("🚀 ~ POST ~ response:", response)
 
         if (!response.ok) {
             return NextResponse.json(
