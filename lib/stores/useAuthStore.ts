@@ -2,10 +2,11 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 type User = {
-    id: number;
-    name: string;
+    user_id: number;
+    first_name: string;
+    middle_name: string;
+    last_name: string;
     email: string;
-    roles: string[];
 };
 
 type AuthStore = {

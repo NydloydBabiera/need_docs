@@ -1,7 +1,5 @@
 import Image from "next/image";
-import DocumentsPage from "./documents/lists/page";
-import LandingPage from "./landing/page";
-
+import LandingPage from "./(main)/landing/page";
 export default function Home() {
   return (
     <div>
