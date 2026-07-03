@@ -26,9 +26,24 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* body {
+  @apply font-body;
+} */
+
+/* h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-heading;
+} */
+
 @layer components {
   .btn-primary {
-    @apply bg-primary text-text-primary px-4 py-2 rounded-lg hover:bg-primary hover:text-text-secondary transition;
+    @apply bg-primary text-text-primary px-4 py-2 rounded-lg
+         transition-all duration-300 ease-out
+         transform hover:-translate-y-2 hover:shadow-xl;
   }
 
   .modal-overlay {
@@ -54,6 +69,92 @@ body {
   }
 
   .modal-body {
-    @apply p-5 text-gray-700;
+    @apply p-5 text-text-secondary;
   }
+
+  .div-main {
+    @apply min-h-[calc(100vh-65px)] flex flex-col md:flex-row;
+  }
+  .div-panel {
+    @apply flex items-center justify-center min-h-[calc(100vh-65px)];
+  }
+
+  .heading-primary {
+    @apply text-5xl text-text-secondary font-bold md:text-7xl justify-center uppercase;
+  }
+  .colored-heading-primary {
+    @apply text-5xl text-primary font-bold md:text-7xl justify-center uppercase;
+  }
+
+  .paragraph-primary {
+    @apply mt-6 text-lg text-gray-200;
+  }
+
+  .left-panel {
+    @apply w-full md:w-1/2 flex flex-col justify-center items-center md:items-start
+   px-6 md:px-16 py-16 md:py-0 relative overflow-hidden text-center md:text-left;
+  }
+
+  .right-panel {
+    @apply w-full md:w-1/2 flex items-center justify-center bg-white px-6 py-12 md:py-0;
+  }
+
+  .login-title {
+    @apply text-4xl md:text-6xl font-extrabold drop-shadow-md z-10;
+  }
+
+  .login-subtitle {
+    @apply text-base md:text-lg mt-3 md:mt-4 z-10;
+  }
+
+  /* CARD */
+  .login-card {
+    @apply w-full max-w-lg flex flex-col items-center
+    p-6 md:p-8 rounded-xl shadow-lg border border-gray-100;
+  }
+
+  /* HEADING */
+  .login-heading {
+    @apply text-xl md:text-2xl font-bold text-primary mb-6 text-center;
+  }
+
+  /* FORM */
+  .login-form {
+    @apply w-full flex flex-col gap-4;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2 border text-black border-gray-300 rounded-md
+    focus:outline-none focus:ring-2 focus:ring-primary;
+  }
+}
+
+@keyframes floatUp {
+  from {
+    opacity: 0;
+    transform: translateY(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatLeft {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-float-up {
+  animation: floatUp 0.8s ease-out;
+}
+
+.anime-float-left {
+  animation: floatLeft 0.8s ease-out;
 }

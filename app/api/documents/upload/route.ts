@@ -1,97 +1,93 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-import { v4 as uuidv4 } from "uuid";
+
+import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/getCurrentUser";
 const FILE_SERVER_API = process.env.FILE_SERVER_API;
 
 export async function POST(req: NextRequest) {
     try {
-        const formData = await req.formData();
+        const authHeader = req.headers.get("authorization");
 
-        const file = formData.get("file");
-        console.log("🚀 ~ POST ~ file:", file)
-
-        if (!file || !(file instanceof File)) {
-            return NextResponse.json(
-                { message: "No file uploaded" },
-                { status: 400 }
-            );
+        if (!authHeader?.startsWith("Bearer ")) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        // IMPORTANT: stream instead of re-buffering manually
+
+        console.log("🚀 1")
+        const formData = await req.formData();
+
+        console.log("🚀 2")
+        const user = await getCurrentUser();
+        if (!user) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
+        console.log({
+            method: req.method,
+            contentType: req.headers.get("content-type"),
+            contentLength: req.headers.get("content-length"),
+        });
+
+
+        console.log("🚀 3")
+        const title = formData.get("title") as string;
+        const description = formData.get("description") as string;
+        const file = formData.get("document") as File;
+
+        if (!file) {
+            return NextResponse.json({ message: "No file uploaded" }, { status: 400 });
+        }
+        console.log("🚀 4")
+        // ✅ Upload file FIRST (no DB yet)
+        console.log("✅ Upload file FIRST (no DB yet)")
+        const arrayBuffer = await file.arrayBuffer();
+
         const uploadForm = new FormData();
-        uploadForm.append("file", file);
+        uploadForm.append(
+            "file",
+            new Blob([arrayBuffer]),
+            file.name
+        );
+        uploadForm.append("path", "documents/contracts");
 
-        const controller = new AbortController();
-
-        const response = await fetch(`${FILE_SERVER_API}/upload`, {
+         console.log("🚀 5")
+        const uploadResponse = await fetch(`${FILE_SERVER_API}/upload`, {
             method: "POST",
             body: uploadForm,
-            signal: controller.signal,
+            headers: {
+                Connection: "close",
+            },
         });
-        console.log("🚀 ~ POST ~ response:", response)
 
-        if (!response.ok) {
+        if (!uploadResponse.ok) {
             return NextResponse.json(
-                { message: "File server upload failed" },
+                { message: "File upload failed" },
                 { status: 500 }
             );
         }
 
-        const result = await response.json();
+         console.log("🚀 6")
+        const uploadResult = await uploadResponse.json();
 
-        return NextResponse.json(result);
-    } catch (error: any) {
-        console.error("UPLOAD ERROR:", error);
+        // ✅ Now save DB using REAL file path
+        const saved = await prisma.document_information.create({
+            data: {
+                title,
+                description,
+                filePath: uploadResult.url, // 👈 correct
+                user_id: user.user_id,
+            }
+        });
 
+        return NextResponse.json({
+            message: "Uploaded successfully",
+            data: saved,
+        });
+
+    } catch (err) {
+        console.error(err);
         return NextResponse.json(
-            { message: "Upload aborted or failed", error: error?.message },
+            { message: "Internal server error" },
             { status: 500 }
         );
     }
 }
-// export async function POST(req: NextRequest) {
-//   try {
-//     const formData = await req.formData();
-
-//     const file = formData.get("file") as File;
-
-//     if (!file) {
-//       return NextResponse.json(
-//         { message: "No file uploaded" },
-//         { status: 400 }
-//       );
-//     }
-
-//     const bytes = await file.arrayBuffer();
-//     const buffer = Buffer.from(bytes);
-
-//     const uploadDir = "/var/www/fileserver";
-
-//     if (!fs.existsSync(uploadDir)) {
-//       fs.mkdirSync(uploadDir, { recursive: true });
-//     }
-
-//     const extension = path.extname(file.name);
-
-//     const filename = `${uuidv4()}${extension}`;
-
-//     fs.writeFileSync(
-//       path.join(uploadDir, filename),
-//       buffer
-//     );
-
-//     return NextResponse.json({
-//       success: true,
-//       filename,
-//       originalName: file.name,
-//     });
-//   } catch (error) {
-//     console.error(error);
-
-//     return NextResponse.json(
-//       { message: "Upload failed" },
-//       { status: 500 }
-//     );
-//   }
-// }

@@ -9,7 +9,7 @@ export type FieldType =
   | "select"
   | "dateSchedule"
   | "date-range"
-  | "file"; // ✅ added
+  | "file";
 
 export type FormField = {
   name: string;
@@ -63,9 +63,11 @@ export default function Form({
             accept={field.accept}
             multiple={field.multiple}
             disabled={isDisabled}
+            placeholder={field.placeholder}
             onChange={(e) => {
               const files = e.target.files;
-              onChange(field.name, field.multiple ? files : files?.[0]);
+              // onChange(field.name, field.multiple ? files : files?.[0]);
+              onChange(field.name, files ? (field.multiple ? Array.from(files) : files[0]) : null);
             }}
             className="input-field w-full border rounded-lg px-4 py-2"
           />
@@ -140,13 +142,27 @@ export default function Form({
           </div>
         );
 
-      default:
+      case "text":
         return (
           <input
-            type="file"
-            onChange={(e) => onChange(field.name, e.target.files?.[0] || null)}
+            type="text"
+            {...commonProps}
+            onChange={(e) => onChange(field.name, e.target.value)}
+            className="input-field w-full border rounded-lg px-4 py-2"
           />
         );
+      case "password":
+        return (
+          <input
+            type="password"
+            {...commonProps}
+            onChange={(e) => onChange(field.name, e.target.value)}
+            className="input-field w-full border rounded-lg px-4 py-2"
+          />
+        );
+
+      default:
+        return <input type={field.type || "text"} {...commonProps} />;
     }
   };
 

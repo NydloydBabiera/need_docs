@@ -1,4 +1,10 @@
+"use client";
+import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { Moon, Sun } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import Button from "./Button";
 
 type NavbarProps = {
   darkMode: boolean;
@@ -6,25 +12,122 @@ type NavbarProps = {
 };
 
 export default function Navbar() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const router = useRouter();
+  const clearUser = useAuthStore((state) => state.clearUser);
+
+  console.log("🚀 ~ Navbar ~ user:", user);
+  const handleLogout = () => {
+    document.cookie = "token=; path=/; max-age=0; SameSite=Lax";
+
+    clearUser();
+
+    console.log("🚀 ~ Navbar ~ user:", user);
+    router.push("/");
+  };
+
+  const handleLogin = () => {
+    router.push("/authentication");
+  };
+
   return (
-    <nav className="fixed w-full bg-white dark:bg-gray-800 shadow z-50">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 className="font-bold text-xl">Need Docs</h1>
+    <div>
+      <nav className="bg-text-primary shadow-md ">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16 items-center">
+            {/* LEFT - Logo */}
+            <div className="flex items-center space-x-2">
+              <Button
+                onClick={() => {
+                  router.push("/");
+                }}
+                icon={<img src="document.svg" className="h-7" alt="IBS logo" />}
+                className="text-text-secondary font-semibold text-xl m-5"
+              >
+                Need docs?
+              </Button>
+            </div>
 
-        <div className="flex items-center gap-6">
-          <a href="#about" className="hover:text-blue-500">About</a>
-          <a href="#skills" className="hover:text-blue-500">Skills</a>
-          <a href="#experience" className="hover:text-blue-500">Experience</a>
-          <a href="#projects" className="hover:text-blue-500">Projects</a>
+            {/* RIGHT - User Dropdown */}
+            <div className="hidden md:flex items-center relative">
+              {user ? (
+                <button
+                  onClick={() => setUserOpen(!userOpen)}
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-gray-100"
+                >
+                  <span className="text-text-secondary font-semibold uppercase">
+                    Hello, {user?.first_name + " " + user?.last_name}
+                  </span>
+                </button>
+              ) : (
+                <Button className="btn-primary" onClick={handleLogin}>
+                  Sign in
+                </Button>
+              )}
 
-          {/* <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="p-2 rounded-full bg-gray-200 dark:bg-gray-700"
-          >
-            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-          </button> */}
+              {userOpen && (
+                <div className="absolute right-0 top-12 w-40 bg-white  rounded-md shadow-lg">
+                  {/* <Link
+                  href="/profile"
+                  className="block px-4 py-2 hover:bg-gray-100"
+                >
+                  Profile
+                </Link> */}
+                  <button
+                    className="text-text-secondary w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={() => {
+                      console.log("🚀 ~ Navbar ~ user:", user);
+                      router.push("/documents");
+                    }}
+                  >
+                    My Documents
+                  </button>
+                  <button
+                    className="text-text-secondary w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* MOBILE BUTTON */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="p-2 rounded-md hover:bg-gray-100"
+              >
+                ☰
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </nav>
+
+        {/* MOBILE MENU */}
+        {mobileOpen && (
+          <div className="md:hidden px-4 pb-4 space-y-2 border-t">
+            {/* <Link href="/" className="block py-2">
+            Home
+          </Link>
+          <Link href="/events" className="block py-2">
+            Events
+          </Link>
+          <Link href="/about" className="block py-2">
+            About
+          </Link> */}
+
+            <div className="border-t pt-2">
+              <Link href="/profile" className="block py-2">
+                Profile
+              </Link>
+              <button className="block py-2 text-left w-full">Logout</button>
+            </div>
+          </div>
+        )}
+      </nav>
+    </div>
   );
 }

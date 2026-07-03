@@ -10,7 +10,6 @@ export default function ProtectedMain({
 }) {
   return (
     <main className="app-content">
-      <NavBar />
       {children}
     </main>
   );
