@@ -1,7 +1,7 @@
 "use client";
 
+import AuthProvider from "@/ui/AuthProvider";
 import NavBar from "@/ui/Navbar";
-
 
 export default function ProtectedMain({
   children,
@@ -10,7 +10,7 @@ export default function ProtectedMain({
 }) {
   return (
     <main className="app-content">
-      {children}
+      <AuthProvider>{children}</AuthProvider>
     </main>
   );
 }

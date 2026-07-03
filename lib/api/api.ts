@@ -5,13 +5,15 @@ import https from "https";
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 api.interceptors.request.use(
   (config) => {
     const token = Cookies.get("token");
-    console.log("🚀 ~ token:", token)
+    console.log("🚀 ~ token123:", token)
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

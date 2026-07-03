@@ -40,11 +40,9 @@ export default function RootLayout({
         {/* <NavbarWrapper /> */}
 
         <Navbar />
-        <AuthProvider>
           {children}
           <Notification />
           <LoadingScreen />
-        </AuthProvider>
       </body>
     </html>
   );

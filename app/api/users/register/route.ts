@@ -15,12 +15,12 @@ export async function POST(req: Request) {
 
         const user = await prisma.user_information.create({
             data: {
-                first_name: body.firstName,
-                middle_name: body.middleName,
-                last_name: body.lastName,
+                first_name: body.first_name,
+                middle_name: body.middle_name,
+                last_name: body.last_name,
                 email: body.email,
                 password: hashedPassword,
-                folder_location: `/${body.firstName}_${body.lastName}`
+                folder_location: `/${body.first_name}_${body.last_name}`
             },
         });
         console.log("🚀 ~ POST ~ user:", user)
@@ -31,58 +31,10 @@ export async function POST(req: Request) {
             message: "Registration successful",
         });
     } catch (error) {
+        console.error("Registration error:", error);
         return NextResponse.json(
             {
-                error: "Failed to create user",
-            },
-            { status: 500 }
-        );
-    }
-}
-
-export async function GET(req: Request) {
-    try {
-        const body = await req.json();
-        const { email, password } = body;
-        const user = await prisma.user_information.findUnique({
-            where: { email },
-        });
-        if (!user) {
-            return NextResponse.json({
-                status: 401,
-                message: "No user found",
-            });
-        }
-        // const hashedPassword = await bcrypt.hash(password, 10);
-        const isMatch = await bcrypt.compare(password, user.password);
-
-        if (!isMatch) {
-            return NextResponse.json({
-                status: 401,
-                message: "Invalid credentials",
-            });
-        }
-
-        const token = jwt.sign(
-            {
-                id: user.user_id,
-                email: user.email,
-            },
-            process.env.JWT_SECRET!,
-            {
-                expiresIn: "1d",
-            },
-        );
-
-        return NextResponse.json({
-            status: 200,
-            message: "Logged in successful",
-            token,
-        });
-    } catch (error) {
-        return NextResponse.json(
-            {
-                error: "Failed to create user",
+                error: error || "Failed to create user",
             },
             { status: 500 }
         );

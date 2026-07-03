@@ -159,9 +159,9 @@ export default function Login() {
         password: password,
       }));
       console.log("values:", values);
-      // const data = await registerUser(values as RegisterPayload);
-      // if (data)
-      //   showNotification("Success", "Registered successfully.", "success");
+      const data = await registerUser(values as RegisterPayload);
+      if (data)
+        showNotification("Success", "Registered successfully.", "success");
     } catch (error: any) {
       console.error("Error adding guest:", error);
       showNotification(
@@ -172,6 +172,7 @@ export default function Login() {
     } finally {
       setLoading(false);
       stopLoading();
+      window.location.reload();
     }
   };
 
