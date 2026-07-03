@@ -100,6 +100,13 @@ export default function Login() {
 
       console.log("Login successful:", data);
 
+      if (data.status !== 200) {
+        setError(data.message || "Login failed");
+        console.error(data.message || "Login failed");
+        showNotification("Error", data.message || "Login failed", "error");
+        return;
+      }
+
       if (data.token) {
         document.cookie = `token=${data.token}; path=/; max-age=86400; SameSite=Lax`;
 
@@ -197,6 +204,11 @@ export default function Login() {
             className="input-field"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleLogin();
+              }
+            }}
           />
 
           <InputField
@@ -205,12 +217,22 @@ export default function Login() {
             className="input-field"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleLogin();
+              }
+            }}
           />
 
           <Button
             className="btn-primary w-full"
             onClick={handleLogin}
             disabled={loading}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleLogin();
+              }
+            }}
           >
             {loading ? "Signing in..." : "Sign in"}
           </Button>
