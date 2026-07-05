@@ -64,6 +64,9 @@ export default function Login() {
   const [isRegistration, setIsRegistration] = useState(false);
   const [isAccountCreation, setIsAccountCreation] = useState(false);
 
+  const enableRegistration = process.env.NEXT_PUBLIC_ENABLE_REGISTRATION;
+  console.log("🚀 ~ Login ~ enableRegistration:", enableRegistration);
+
   const handleChange = (name: string, value: string) => {
     setValues((prev) => ({
       ...prev,
@@ -250,18 +253,22 @@ export default function Login() {
           >
             Create Account
           </Button> */}
-          <p className="text-sm text-gray-600">
-            Don't have an account yet?{" "}
-            <Button
-              type="button"
-              onClick={() => {
-                setIsRegistration(true);
-              }}
-              className="text-blue-600 hover:underline bg-transparent border-none p-0 cursor-pointer"
-            >
-              Register here
-            </Button>
-          </p>
+          {enableRegistration === "true" ? (
+            <p className="text-sm text-gray-600">
+              Don't have an account yet?{" "}
+              <Button
+                type="button"
+                onClick={() => {
+                  setIsRegistration(true);
+                }}
+                className="text-blue-600 hover:underline bg-transparent border-none p-0 cursor-pointer"
+              >
+                Register here
+              </Button>
+            </p>
+          ) : (
+            <div></div>
+          )}
         </div>
       </div>
       {/* registration */}
