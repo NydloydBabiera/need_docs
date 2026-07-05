@@ -156,17 +156,21 @@ export default function Login() {
     if (password !== confirmPassword) {
       showNotification("Error", "Password does not match.", "error");
       setPassword("");
+      setConfirmPassword("");
       return;
     }
 
+    console.log("🚀 ~ handleCreateAccount ~ password:", password);
+
+    console.log("🚀 ~ handleCreateAccount ~ confirmPassword:", confirmPassword);
+    setValues((prev) => {
+      return {
+        ...prev,
+        password: confirmPassword,
+      };
+    });
     try {
       setLoading(true);
-      // set password
-      setValues((prev) => ({
-        ...prev,
-        password: password,
-      }));
-      console.log("values:", values);
       const data = await registerUser(values as RegisterPayload);
       if (data)
         showNotification("Success", "Registered successfully.", "success");
