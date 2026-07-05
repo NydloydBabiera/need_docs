@@ -10,7 +10,7 @@ export default function ProtectedMain({
 }) {
   return (
     <main className="app-content">
-      <AuthProvider>{children}</AuthProvider>
+      {children}
     </main>
   );
 }

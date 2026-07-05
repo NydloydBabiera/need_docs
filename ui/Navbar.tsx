@@ -3,7 +3,7 @@ import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "./Button";
 
 type NavbarProps = {
@@ -17,6 +17,7 @@ export default function Navbar() {
   const user = useAuthStore((state) => state.user);
   const router = useRouter();
   const clearUser = useAuthStore((state) => state.clearUser);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   console.log("🚀 ~ Navbar ~ user:", user);
   const handleLogout = () => {
@@ -25,12 +26,32 @@ export default function Navbar() {
     clearUser();
 
     console.log("🚀 ~ Navbar ~ user:", user);
+    setUserOpen(!userOpen);
     router.push("/");
   };
 
   const handleLogin = () => {
     router.push("/authentication");
   };
+
+  const handleDocuments = () => {
+    router.push("/documents");
+  }
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setUserOpen(false);
+      }
+    }
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div>
@@ -51,7 +72,10 @@ export default function Navbar() {
             </div>
 
             {/* RIGHT - User Dropdown */}
-            <div className="hidden md:flex items-center relative">
+            <div
+              className="hidden md:flex items-center relative"
+              ref={dropdownRef}
+            >
               {user ? (
                 <button
                   onClick={() => setUserOpen(!userOpen)}
@@ -77,10 +101,7 @@ export default function Navbar() {
                 </Link> */}
                   <button
                     className="text-text-secondary w-full text-left px-4 py-2 hover:bg-gray-100"
-                    onClick={() => {
-                      console.log("🚀 ~ Navbar ~ user:", user);
-                      router.push("/documents");
-                    }}
+                    onClick={handleDocuments}
                   >
                     My Documents
                   </button>

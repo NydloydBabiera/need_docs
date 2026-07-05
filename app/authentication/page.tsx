@@ -156,6 +156,7 @@ export default function Login() {
     if (password !== confirmPassword) {
       showNotification("Error", "Password does not match.", "error");
       setPassword("");
+      return;
     }
 
     try {

@@ -39,10 +39,12 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         {/* <NavbarWrapper /> */}
 
-        <Navbar />
+        <AuthProvider>
+          <Navbar />
           {children}
           <Notification />
           <LoadingScreen />
+        </AuthProvider>
       </body>
     </html>
   );
