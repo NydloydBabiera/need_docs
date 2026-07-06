@@ -23,6 +23,9 @@ export const uploadDocument = async (payload: DocumentPayload) => {
   const response = await api.post("/api/documents/upload", formData, {
     maxBodyLength: Infinity,
     maxContentLength: Infinity,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
 
   return response.data;

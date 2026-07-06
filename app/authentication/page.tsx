@@ -41,6 +41,21 @@ const fields: FormField[] = [
   },
 ];
 
+const passwordFields: FormField[] = [
+  {
+    name: "password",
+    label: "",
+    type: "password",
+    placeholder: "Enter your password",
+  },
+  {
+    name: "confirmPassword",
+    label: "",
+    type: "password",
+    placeholder: "Confirm your password",
+  },
+];
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,6 +71,7 @@ export default function Login() {
     last_name: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
   const { startLoading, stopLoading } = useLoadingStore();
   const showNotification = useNotificationStore(
@@ -65,7 +81,6 @@ export default function Login() {
   const [isAccountCreation, setIsAccountCreation] = useState(false);
 
   const enableRegistration = process.env.NEXT_PUBLIC_ENABLE_REGISTRATION;
-  console.log("🚀 ~ Login ~ enableRegistration:", enableRegistration);
 
   const handleChange = (name: string, value: string) => {
     setValues((prev) => ({
@@ -156,16 +171,14 @@ export default function Login() {
   const handleCreateAccount = async () => {
     startLoading("Creating user...");
 
-    if (password !== confirmPassword) {
+    if (values.password !== values.confirmPassword) {
+      stopLoading();
       showNotification("Error", "Password does not match.", "error");
       setPassword("");
       setConfirmPassword("");
       return;
     }
 
-    console.log("🚀 ~ handleCreateAccount ~ password:", password);
-
-    console.log("🚀 ~ handleCreateAccount ~ confirmPassword:", confirmPassword);
     setValues((prev) => {
       return {
         ...prev,
@@ -175,9 +188,17 @@ export default function Login() {
     try {
       setLoading(true);
       const data = await registerUser(values as RegisterPayload);
-      if (data)
-        showNotification("Success", "Registered successfully.", "success");
+      if (data.status !== 201) {
+        showNotification(
+          "Error",
+          data.message || "Failed to register",
+          "error",
+        );
+        return;
+      }
+      showNotification("Success", "Registered successfully.", "success");
     } catch (error: any) {
+      stopLoading();
       console.error("Error adding guest:", error);
       showNotification(
         "Error",
@@ -187,7 +208,7 @@ export default function Login() {
     } finally {
       setLoading(false);
       stopLoading();
-      window.location.reload();
+      // window.location.reload();
     }
   };
 
@@ -309,21 +330,29 @@ export default function Login() {
             disabled={!isAccountCreation}
             onChange={(e) => setEmail(e.target.value)}
           />
-
-          <InputField
+          <Form
+            fields={passwordFields}
+            values={values}
+            onChange={handleChange}
+          />
+          {/* <InputField
             type="password"
             placeholder="Enter your password"
             className="input-field"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            // onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              console.log("typing:", e.target.value);
+              setPassword(e.target.value);
+            }}
           />
           <InputField
             type="password"
             placeholder="Confirm your password"
             className="input-field"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
+            onChange={handleChange}
+          /> */}
           <Button
             className="btn-primary w-full"
             onClick={handleCreateAccount}

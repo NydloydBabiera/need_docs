@@ -3,6 +3,13 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
 
+async function isUserExists(email: string) {
+    const user = await prisma.user_information.findUnique({
+        where: { email },
+    });
+    return !!user;
+}
+
 export async function POST(req: Request) {
     try {
         const body = await req.json();
@@ -12,6 +19,16 @@ export async function POST(req: Request) {
             body.password,
             10
         );
+        // console.log("🚀 ~ POST ~ isUserExists(body.email):", isUserExists(body.email))
+        const exists = await isUserExists(body.email);
+        console.log("body.email:", body.email);
+        console.log("exists:", exists);
+        if (exists) {
+            return NextResponse.json({
+                message: "User already exists",
+                status: 400,
+            });
+        }
 
         const user = await prisma.user_information.create({
             data: {

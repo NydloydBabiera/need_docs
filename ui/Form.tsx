@@ -17,6 +17,7 @@ export type FormField = {
   type: FieldType;
   placeholder?: string;
   options?: { label: string; value: string }[];
+  isDisabled?: boolean;
   accept?: string; // ✅ optional file types
   multiple?: boolean; // ✅ allow multiple files
 };
