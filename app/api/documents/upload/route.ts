@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/getCurrentUser";
+import axios from "axios";
 const FILE_SERVER_API = process.env.FILE_SERVER_API;
 
-async function uploadFileToServer(file: File): Promise<string> {
+interface UploadResponse {
+    url: string;
+    message: string;
+}
+
+async function uploadFileToServer(file: File): Promise<UploadResponse> {
     const arrayBuffer = await file.arrayBuffer();
     const uploadForm = new FormData();
     uploadForm.append(
@@ -14,20 +20,19 @@ async function uploadFileToServer(file: File): Promise<string> {
     );
     uploadForm.append("path", "documents/contracts");
 
-    const uploadResponse = await fetch(`${FILE_SERVER_API}/upload`, {
-        method: "POST",
-        body: uploadForm,
+    const uploadResponse = await axios.post(`${FILE_SERVER_API}/upload`, uploadForm, {
         headers: {
             Connection: "close",
         },
     });
 
-    if (!uploadResponse.ok) {
-        throw new Error("File upload failed");
+    if (uploadResponse.status !== 200) {
+        console.log("🚀 ~ uploadFileToServer ~ uploadResponse:", uploadResponse);
+        throw new Error(`File upload failed with status: ${uploadResponse}`);
     }
 
-    const uploadResult = await uploadResponse.json();
-    return uploadResult.url;
+    const uploadResult = await uploadResponse.data;
+    return uploadResult;
 }
 
 export async function POST(req: NextRequest) {
@@ -76,25 +81,9 @@ export async function POST(req: NextRequest) {
         uploadForm.append("path", "documents/contracts");
 
         console.log("🚀 5")
-        const uploadResponse = await fetch(`${FILE_SERVER_API}/upload`, {
-            method: "POST",
-            body: uploadForm,
-            headers: {
-                Connection: "close",
-            },
-        });
-        console.log("🚀 ~ POST ~ uploadResponse:", uploadResponse)
-
-        if (!uploadResponse.ok) {
-            return NextResponse.json(
-                { message: "File upload failed" },
-                { status: 500 }
-            );
-        }
+        const uploadResult: UploadResponse = await uploadFileToServer(file);
 
         console.log("🚀 6")
-        const uploadResult = await uploadResponse.json();
-
         // ✅ Now save DB using REAL file path
         const saved = await prisma.document_information.create({
             data: {
