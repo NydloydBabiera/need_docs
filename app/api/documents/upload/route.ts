@@ -4,6 +4,32 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 const FILE_SERVER_API = process.env.FILE_SERVER_API;
 
+async function uploadFileToServer(file: File): Promise<string> {
+    const arrayBuffer = await file.arrayBuffer();
+    const uploadForm = new FormData();
+    uploadForm.append(
+        "file",
+        new Blob([arrayBuffer]),
+        file.name
+    );
+    uploadForm.append("path", "documents/contracts");
+
+    const uploadResponse = await fetch(`${FILE_SERVER_API}/upload`, {
+        method: "POST",
+        body: uploadForm,
+        headers: {
+            Connection: "close",
+        },
+    });
+
+    if (!uploadResponse.ok) {
+        throw new Error("File upload failed");
+    }
+
+    const uploadResult = await uploadResponse.json();
+    return uploadResult.url;
+}
+
 export async function POST(req: NextRequest) {
     try {
         const authHeader = req.headers.get("authorization");
@@ -49,7 +75,7 @@ export async function POST(req: NextRequest) {
         );
         uploadForm.append("path", "documents/contracts");
 
-         console.log("🚀 5")
+        console.log("🚀 5")
         const uploadResponse = await fetch(`${FILE_SERVER_API}/upload`, {
             method: "POST",
             body: uploadForm,
@@ -57,6 +83,7 @@ export async function POST(req: NextRequest) {
                 Connection: "close",
             },
         });
+        console.log("🚀 ~ POST ~ uploadResponse:", uploadResponse)
 
         if (!uploadResponse.ok) {
             return NextResponse.json(
@@ -65,7 +92,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-         console.log("🚀 6")
+        console.log("🚀 6")
         const uploadResult = await uploadResponse.json();
 
         // ✅ Now save DB using REAL file path
