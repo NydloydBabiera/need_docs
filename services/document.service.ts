@@ -25,7 +25,7 @@ export const uploadDocument = async (payload: DocumentPayload) => {
     maxContentLength: Infinity,
     headers: {
       "Content-Type": "multipart/form-data",
-       "Connection": "keep-alive"
+      "Connection": "keep-alive"
     },
   });
 
