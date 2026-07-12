@@ -21,10 +21,12 @@ export function parseMultipart(req: Request): Promise<ParsedMultipart> {
         });
 
         bb.on("field", (name, value) => {
+            console.log("FIELD", name);
             fields[name] = value;
         });
 
         bb.on("file", (name, file, info) => {
+            console.log("FILE", name);
             const chunks: Buffer[] = [];
 
             file.on("data", (chunk) => {
@@ -43,14 +45,16 @@ export function parseMultipart(req: Request): Promise<ParsedMultipart> {
         bb.on("error", reject);
 
         bb.on("finish", () => {
+            console.log("FINISH");
             resolve({
                 fields,
                 files,
             });
         });
-
+        console.log("1");
         const body = Buffer.from(await req.arrayBuffer());
-
+        console.log("2");
         bb.end(body);
+        console.log("3");
     });
 }
