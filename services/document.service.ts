@@ -6,7 +6,12 @@ export interface DocumentPayload {
   document: File
 }
 
+
+
 export const uploadDocument = async (payload: DocumentPayload) => {
+  const UPLOAD_ROUTE = process.env.NEXT_PUBLIC_UPLOAD_ROUTE;
+  console.log("🚀 ~ UPLOAD_ROUTE:", UPLOAD_ROUTE)
+  const uploadPath = UPLOAD_ROUTE?.toString() || "/api/documents/upload";
   const formData = new FormData();
 
   formData.append("title", payload.title);
@@ -20,7 +25,7 @@ export const uploadDocument = async (payload: DocumentPayload) => {
     type: payload.document.type,
   });
 
-  const response = await api.post("/api/documents/upload", formData, {
+  const response = await api.post(uploadPath, formData, {
     maxBodyLength: Infinity,
     maxContentLength: Infinity,
     headers: {

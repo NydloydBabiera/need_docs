@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import axios from "axios";
+import { parseMultipart } from "@/lib/parseMultipart";
 const FILE_SERVER_API = process.env.FILE_SERVER_API;
 export const runtime = "nodejs";
 
@@ -41,66 +42,57 @@ export async function POST(req: Request) {
         const authHeader = req.headers.get("authorization");
 
         if (!authHeader?.startsWith("Bearer ")) {
-            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+            return NextResponse.json(
+                { message: "Unauthorized" },
+                { status: 401 }
+            );
         }
 
-
-        console.log("🚀 1")
-        try {
-            const clone = req.clone();
-            const formData = await clone.formData();
-            console.log("Parsed OK");
-        } catch (e) {
-            console.error("formData error", e);
-        }
-        const formData = await req.formData();
-
-        console.log("🚀 2")
         const user = await getCurrentUser();
+
         if (!user) {
-            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+            return NextResponse.json(
+                { message: "Unauthorized" },
+                { status: 401 }
+            );
         }
-        console.log({
-            method: req.method,
-            contentType: req.headers.get("content-type"),
-            contentLength: req.headers.get("content-length"),
-        });
 
+        const { fields, files } = await parseMultipart(req);
 
-        console.log("🚀 3")
-        const title = formData.get("title") as string;
-        const description = formData.get("description") as string;
-        const file = formData.get("document") as File;
+        const title = fields.title;
+        const description = fields.description;
 
-        if (!file) {
-            return NextResponse.json({ message: "No file uploaded" }, { status: 400 });
+        const uploaded = files.document;
+
+        if (!uploaded) {
+            return NextResponse.json(
+                { message: "No file uploaded" },
+                { status: 400 }
+            );
         }
-        console.log("🚀 4")
-        // ✅ Upload file FIRST (no DB yet)
-        console.log("✅ Upload file FIRST (no DB yet)")
-        const arrayBuffer = await file.arrayBuffer();
 
-        const uploadForm = new FormData();
-        uploadForm.append(
-            "file",
-            new Blob([arrayBuffer]),
-            file.name
+        const uint8 = new Uint8Array(uploaded.buffer);
+
+        const file = new File(
+            [uint8],
+            uploaded.filename,
+            {
+                type: uploaded.mimeType,
+            }
         );
-        uploadForm.append("path", "documents/contracts");
 
-        console.log("🚀 5")
-        const uploadResult: UploadResponse = await uploadFileToServer(file, user.folder_location);
-        console.log("🚀 ~ POST ~ uploadResult:", uploadResult)
+        const uploadResult = await uploadFileToServer(
+            file,
+            user.folder_location
+        );
 
-        console.log("🚀 6")
-        // ✅ Now save DB using REAL file path
         const saved = await prisma.document_information.create({
             data: {
                 title,
                 description,
-                filePath: uploadResult.filePath, // 👈 correct
+                filePath: uploadResult.filePath,
                 user_id: user.user_id,
-            }
+            },
         });
 
         return NextResponse.json({
@@ -110,9 +102,14 @@ export async function POST(req: Request) {
 
     } catch (err) {
         console.error(err);
+
         return NextResponse.json(
-            { message: "Internal server error" },
-            { status: 500 }
+            {
+                message: "Internal server error",
+            },
+            {
+                status: 500,
+            }
         );
     }
 }
