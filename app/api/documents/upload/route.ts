@@ -4,13 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import axios from "axios";
 const FILE_SERVER_API = process.env.FILE_SERVER_API;
+export const runtime = "nodejs";
 
 interface UploadResponse {
-    url: string;
+    filePath: string;
     message: string;
 }
 
-async function uploadFileToServer(file: File): Promise<UploadResponse> {
+async function uploadFileToServer(file: File, path: string): Promise<UploadResponse> {
     const arrayBuffer = await file.arrayBuffer();
     const uploadForm = new FormData();
     uploadForm.append(
@@ -18,7 +19,7 @@ async function uploadFileToServer(file: File): Promise<UploadResponse> {
         new Blob([arrayBuffer]),
         file.name
     );
-    uploadForm.append("path", "documents/contracts");
+    uploadForm.append("path", path);
 
     const uploadResponse = await axios.post(`${FILE_SERVER_API}/upload`, uploadForm, {
         headers: {
@@ -35,7 +36,7 @@ async function uploadFileToServer(file: File): Promise<UploadResponse> {
     return uploadResult;
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
     try {
         const authHeader = req.headers.get("authorization");
 
@@ -45,6 +46,13 @@ export async function POST(req: NextRequest) {
 
 
         console.log("🚀 1")
+        try {
+            const clone = req.clone();
+            const formData = await clone.formData();
+            console.log("Parsed OK");
+        } catch (e) {
+            console.error("formData error", e);
+        }
         const formData = await req.formData();
 
         console.log("🚀 2")
@@ -81,7 +89,8 @@ export async function POST(req: NextRequest) {
         uploadForm.append("path", "documents/contracts");
 
         console.log("🚀 5")
-        const uploadResult: UploadResponse = await uploadFileToServer(file);
+        const uploadResult: UploadResponse = await uploadFileToServer(file, user.folder_location);
+        console.log("🚀 ~ POST ~ uploadResult:", uploadResult)
 
         console.log("🚀 6")
         // ✅ Now save DB using REAL file path
@@ -89,7 +98,7 @@ export async function POST(req: NextRequest) {
             data: {
                 title,
                 description,
-                filePath: uploadResult.url, // 👈 correct
+                filePath: uploadResult.filePath, // 👈 correct
                 user_id: user.user_id,
             }
         });
