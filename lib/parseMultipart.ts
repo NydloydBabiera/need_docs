@@ -53,6 +53,7 @@ export function parseMultipart(req: Request): Promise<ParsedMultipart> {
         });
         console.log("1");
         const body = Buffer.from(await req.arrayBuffer());
+        console.log("got body", body.length);
         console.log("2");
         bb.end(body);
         console.log("3");

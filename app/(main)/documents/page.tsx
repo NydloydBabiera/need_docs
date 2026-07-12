@@ -135,6 +135,7 @@ export default function DocumentList() {
       console.error(error);
     } finally {
       stopLoading();
+      fetchDocuments();
     }
   };
 

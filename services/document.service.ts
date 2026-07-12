@@ -1,5 +1,5 @@
 import { api } from "@/lib/api/api";
-
+import Cookies from "js-cookie";
 export interface DocumentPayload {
   title: string;
   description: string;
@@ -10,8 +10,8 @@ export interface DocumentPayload {
 
 export const uploadDocument = async (payload: DocumentPayload) => {
   const UPLOAD_ROUTE = process.env.NEXT_PUBLIC_UPLOAD_ROUTE;
-  console.log("🚀 ~ UPLOAD_ROUTE:", UPLOAD_ROUTE)
   const uploadPath = UPLOAD_ROUTE?.toString() || "/api/documents/upload";
+  console.log("🚀 ~ uploadDocument ~ uploadPath:", uploadPath)
   const formData = new FormData();
 
   formData.append("title", payload.title);
@@ -24,17 +24,22 @@ export const uploadDocument = async (payload: DocumentPayload) => {
     size: payload.document.size,
     type: payload.document.type,
   });
-
-  const response = await api.post(uploadPath, formData, {
-    maxBodyLength: Infinity,
-    maxContentLength: Infinity,
+  const token = Cookies.get("token");
+  const response = await fetch(uploadPath, {
+    method: "POST",
     headers: {
-      "Content-Type": "multipart/form-data",
-      "Connection": "keep-alive"
+      Authorization: `Bearer ${token}`, // however you're currently sending it
     },
+    body: formData,
   });
 
-  return response.data;
+  // const response = await api.post(uploadPath, formData, {
+  //   maxBodyLength: Infinity,
+  //   maxContentLength: Infinity,
+  // });
+  const text = await response.text();
+  console.log(text);
+  return text;
 };
 
 export const getDocuments = async () => {
