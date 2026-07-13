@@ -12,7 +12,7 @@ export interface ParsedMultipart {
 }
 
 export function parseMultipart(req: Request): Promise<ParsedMultipart> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         const fields: Record<string, string> = {};
         const files: Record<string, ParsedFile> = {};
 
@@ -40,6 +40,8 @@ export function parseMultipart(req: Request): Promise<ParsedMultipart> {
                     buffer: Buffer.concat(chunks),
                 };
             });
+
+            file.on("error", reject);
         });
 
         bb.on("error", reject);
@@ -51,11 +53,13 @@ export function parseMultipart(req: Request): Promise<ParsedMultipart> {
                 files,
             });
         });
-        console.log("1");
-        const body = Buffer.from(await req.arrayBuffer());
-        console.log("got body", body.length);
-        console.log("2");
-        bb.end(body);
-        console.log("3");
+
+        req.arrayBuffer()
+            .then((buffer) => {
+                const body = Buffer.from(buffer);
+                console.log("got body", body.length);
+                bb.end(body);
+            })
+            .catch(reject);
     });
 }
