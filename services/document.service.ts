@@ -1,32 +1,36 @@
-import { api } from "@/lib/api/api";
-import Cookies from "js-cookie";
+import { api } from '@/lib/api/api';
+import Cookies from 'js-cookie';
 export interface DocumentPayload {
   title: string;
   description: string;
-  document: File
+  document: File;
 }
-
-
 
 export const uploadDocument = async (payload: DocumentPayload) => {
   const UPLOAD_ROUTE = process.env.NEXT_PUBLIC_UPLOAD_ROUTE;
-  const uploadPath = UPLOAD_ROUTE?.toString() || "/api/documents/upload";
-  console.log("🚀 ~ uploadDocument ~ uploadPath:", uploadPath)
-  const formData = new FormData();
+  const uploadPath = UPLOAD_ROUTE?.toString() || '/api/documents/upload';
 
-  formData.append("title", payload.title);
-  formData.append("description", payload.description);
+  let formData = null;
+  try {
+    formData = new FormData();
+  } catch (error) {
+    console.error('Error creating FormData:', error);
+  }
+  console.log('🚀 ~ uploadDocument ~ formData:', formData);
 
-  formData.append("document", payload.document);
+  formData?.append('title', payload.title);
+  formData?.append('description', payload.description);
+
+  formData?.append('document', payload.document);
 
   console.log({
     name: payload.document.name,
     size: payload.document.size,
     type: payload.document.type,
   });
-  const token = Cookies.get("token");
+  const token = Cookies.get('token');
   const response = await fetch(uploadPath, {
-    method: "POST",
+    method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`, // however you're currently sending it
     },
@@ -43,7 +47,7 @@ export const uploadDocument = async (payload: DocumentPayload) => {
 };
 
 export const getDocuments = async () => {
-  const response = await api.get("/api/documents");
+  const response = await api.get('/api/documents');
 
   return response.data;
-}
+};
