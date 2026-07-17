@@ -48,9 +48,12 @@ export async function POST(req: Request) {
 
     console.log('3');
     const title = fields.title;
+    console.log('🚀 ~ POST ~ title:', title);
     const description = fields.description;
+    console.log('🚀 ~ POST ~ description:', description);
 
     const uploaded = files.document;
+    console.log('🚀 ~ POST ~ uploaded:', uploaded);
 
     if (!uploaded) {
       return NextResponse.json({ message: 'No file uploaded' }, { status: 400 });
