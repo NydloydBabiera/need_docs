@@ -1,15 +1,12 @@
-import { getCurrentUser } from "@/lib/getCurrentUser";
-import { NextRequest, NextResponse } from "next/server";
+import { getCurrentUser } from '@/lib/getCurrentUser';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await getCurrentUser();
+    const user = await getCurrentUser(req);
 
     if (!user) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
     return NextResponse.json({
@@ -19,9 +16,6 @@ export async function GET(req: NextRequest) {
       last_name: user.last_name,
     });
   } catch (error) {
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }

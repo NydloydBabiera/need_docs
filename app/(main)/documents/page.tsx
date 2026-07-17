@@ -1,19 +1,15 @@
-"use client";
+'use client';
 
-import { useLoadingStore } from "@/lib/stores/useLoadingStore";
-import { useNotificationStore } from "@/lib/stores/useNotificationStore";
-import {
-  DocumentPayload,
-  getDocuments,
-  uploadDocument,
-} from "@/services/document.service";
-import Button from "@/ui/Button";
-import Card from "@/ui/Card";
-import Form, { FormField } from "@/ui/Form";
-import InputField from "@/ui/InputField";
-import Modal from "@/ui/Modal";
-import { ArrowLeft, FolderPlus } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useLoadingStore } from '@/lib/stores/useLoadingStore';
+import { useNotificationStore } from '@/lib/stores/useNotificationStore';
+import { DocumentPayload, getDocuments, uploadDocument } from '@/services/document.service';
+import Button from '@/ui/Button';
+import Card from '@/ui/Card';
+import Form, { FormField } from '@/ui/Form';
+import InputField from '@/ui/InputField';
+import Modal from '@/ui/Modal';
+import { ArrowLeft, FolderPlus } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface Document {
   document_id: string;
@@ -25,27 +21,27 @@ interface Document {
 
 const fields: FormField[] = [
   {
-    name: "title",
-    label: "Document title",
-    type: "text",
+    name: 'title',
+    label: 'Document title',
+    type: 'text',
   },
   {
-    name: "description",
-    label: "Description",
-    type: "textarea",
+    name: 'description',
+    label: 'Description',
+    type: 'textarea',
   },
   {
-    name: "document",
-    label: "Upload Document",
-    type: "file",
-    accept: ".pdf,.doc,.docx,.png",
+    name: 'document',
+    label: 'Upload Document',
+    type: 'file',
+    accept: '.pdf,.doc,.docx,.png',
   },
 ];
 
 export default function DocumentList() {
   const initialValues = {
-    title: "",
-    description: "",
+    title: '',
+    description: '',
     document: null as File | null,
   };
   const [values, setValues] = useState(initialValues);
@@ -54,20 +50,18 @@ export default function DocumentList() {
   const [events, setEvents] = useState([]);
   const { startLoading, stopLoading } = useLoadingStore();
   const [isOpenModal, setIsOpenModal] = useState(false);
-  const showNotification = useNotificationStore(
-    (state) => state.showNotification,
-  );
-  const [searchInput, setSearchInput] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
+  const showNotification = useNotificationStore((state) => state.showNotification);
+  const [searchInput, setSearchInput] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const validateForm = () => {
     for (const field of fields) {
       const value = values[field.name as keyof typeof values];
 
-      if (field.name === "description") return true;
+      if (field.name === 'description') return true;
 
-      if (!value || value.toString().trim() === "") {
-        showNotification("Error", `${field.label} is required`, "error");
+      if (!value || value.toString().trim() === '') {
+        showNotification('Error', `${field.label} is required`, 'error');
         return false;
       }
     }
@@ -77,15 +71,15 @@ export default function DocumentList() {
 
   const fetchDocuments = async () => {
     try {
-      startLoading("Loading documents...");
+      startLoading('Loading documents...');
 
       const documents = await getDocuments();
 
-      console.log("🚀 ~ fetchTutorials ~ data:", documents);
+      console.log('🚀 ~ fetchTutorials ~ data:', documents);
 
       setDocuments(documents);
     } catch (error) {
-      console.error("Failed to fetch tutorials:", error);
+      console.error('Failed to fetch tutorials:', error);
     } finally {
       stopLoading();
     }
@@ -119,20 +113,19 @@ export default function DocumentList() {
 
     const keyword = searchTerm.toLowerCase();
 
-    return documents.filter((document) =>
-      document.title.toLowerCase().includes(keyword),
-    );
+    return documents.filter((document) => document.title.toLowerCase().includes(keyword));
   }, [documents, searchTerm]);
 
   const handleSubmit = async () => {
     try {
-      startLoading("Uploading document...");
+      startLoading('Uploading document...');
       if (!validateForm()) return;
 
       const data = await uploadDocument(values as DocumentPayload);
-      console.log("🚀 ~ handleSubmit ~ data:", data);
+      console.log('🚀 ~ handleSubmit ~ data:', data);
     } catch (error) {
       console.error(error);
+      showNotification('Error', 'An error occurred while uploading the document.', 'error');
     } finally {
       stopLoading();
       fetchDocuments();
@@ -175,7 +168,7 @@ export default function DocumentList() {
             className="input-field w-full"
             onChange={(e) => setSearchInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
+              if (e.key === 'Enter') {
                 setSearchTerm(searchInput);
               }
             }}
@@ -210,11 +203,7 @@ export default function DocumentList() {
         )}
       </div>
 
-      <Modal
-        isOpen={isOpenModal}
-        onClose={() => setIsOpenModal(false)}
-        title="Add Document"
-      >
+      <Modal isOpen={isOpenModal} onClose={() => setIsOpenModal(false)} title="Add Document">
         {addTasksSection}
       </Modal>
     </div>
