@@ -34,14 +34,14 @@ async function uploadFileToServer(file: File, path: string): Promise<UploadRespo
 }
 
 export async function POST(req: Request) {
+  console.log('1');
+
+  const user = await getCurrentUser(req);
+
+  if (!user) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
   try {
-    console.log('1');
-
-    const user = await getCurrentUser(req);
-
-    if (!user) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-    }
     console.log('2');
 
     const { fields, files } = await parseMultipart(req);

@@ -25,7 +25,8 @@ export async function getCurrentUser(req: Request) {
         user_id: decoded.id,
       },
     });
-
+    console.log('🚀 ~ getCurrentUser ~ getCurrentUser: 6');
+    console.log('🚀 ~ getCurrentUser ~ user:', user);
     return user;
   } catch (error) {
     console.error('Error occurred while fetching current user:', error);
