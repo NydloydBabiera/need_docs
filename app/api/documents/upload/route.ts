@@ -45,6 +45,8 @@ export async function POST(req: Request) {
     console.log('2');
 
     const { fields, files } = await parseMultipart(req);
+    console.log('🚀 ~ POST ~ files:', files);
+    console.log('🚀 ~ POST ~ fields:', fields);
 
     console.log('3');
     const title = fields.title;
