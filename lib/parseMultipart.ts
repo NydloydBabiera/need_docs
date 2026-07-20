@@ -12,6 +12,7 @@ export interface ParsedMultipart {
 }
 
 export function parseMultipart(req: Request): Promise<ParsedMultipart> {
+  console.log('🚀 ~ parseMultipart ~ req.bodyUsed:', req.bodyUsed);
   return new Promise((resolve, reject) => {
     console.log('🚀 ~ parseMultipart ~ parseMultipart: 1');
     const fields: Record<string, string> = {};
@@ -25,6 +26,8 @@ export function parseMultipart(req: Request): Promise<ParsedMultipart> {
       console.log('FIELD', name);
       fields[name] = value;
     });
+    console.log('🚀 ~ parseMultipart ~ fields:', fields);
+    console.log('🚀 ~ parseMultipart ~ files:', files);
     console.log('🚀 ~ parseMultipart ~ parseMultipart: 4');
     bb.on('file', (name, file, info) => {
       console.log('FILE', name);
@@ -49,6 +52,8 @@ export function parseMultipart(req: Request): Promise<ParsedMultipart> {
     console.log('🚀 ~ parseMultipart ~ parseMultipart: 9');
     bb.on('finish', () => {
       console.log('FINISH');
+      console.log('🚀 ~ parseMultipart ~ fields:', fields);
+      console.log('🚀 ~ parseMultipart ~ files:', files);
       resolve({
         fields,
         files,
@@ -58,6 +63,7 @@ export function parseMultipart(req: Request): Promise<ParsedMultipart> {
 
     console.log('🚀 ~ parseMultipart ~ fields:', fields);
     console.log('🚀 ~ parseMultipart ~ files:', files);
+    console.log('🚀 ~ parseMultipart ~ req.bodyUsed:', req.bodyUsed);
     req
       .arrayBuffer()
       .then((buffer) => {
