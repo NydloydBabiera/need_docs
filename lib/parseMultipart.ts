@@ -55,6 +55,9 @@ export function parseMultipart(req: Request): Promise<ParsedMultipart> {
       });
     });
     console.log('🚀 ~ parseMultipart ~ parseMultipart: 10');
+
+    console.log('🚀 ~ parseMultipart ~ fields:', fields);
+    console.log('🚀 ~ parseMultipart ~ files:', files);
     req
       .arrayBuffer()
       .then((buffer) => {
