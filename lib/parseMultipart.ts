@@ -13,6 +13,12 @@ export interface ParsedMultipart {
 
 export function parseMultipart(req: Request): Promise<ParsedMultipart> {
   console.log('🚀 ~ parseMultipart ~ req.bodyUsed:', req.bodyUsed);
+  console.log('Content-Type:', req.headers.get('content-type'));
+  console.log('Content-Length:', req.headers.get('content-length'));
+  console.log(
+    "🚀 ~ parseMultipart ~ req.headers.get('content-type'):",
+    req.headers.get('content-type')
+  );
   return new Promise((resolve, reject) => {
     console.log('🚀 ~ parseMultipart ~ parseMultipart: 1');
     const fields: Record<string, string> = {};
@@ -61,15 +67,19 @@ export function parseMultipart(req: Request): Promise<ParsedMultipart> {
     });
     console.log('🚀 ~ parseMultipart ~ parseMultipart: 10');
 
-    console.log('🚀 ~ parseMultipart ~ fields:', fields);
-    console.log('🚀 ~ parseMultipart ~ files:', files);
     console.log('🚀 ~ parseMultipart ~ req.bodyUsed:', req.bodyUsed);
     req
       .arrayBuffer()
       .then((buffer) => {
         const body = Buffer.from(buffer);
         console.log('got body', body.length);
-        bb.end(body);
+        console.log('writing', body.length);
+
+        bb.write(body);
+
+        console.log('ending');
+
+        bb.end();
       })
       .catch(reject);
     console.log('🚀 ~ parseMultipart ~ parseMultipart: 11');
