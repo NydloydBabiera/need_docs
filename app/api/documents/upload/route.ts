@@ -13,46 +13,69 @@ interface UploadResponse {
   message: string;
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
+  console.log('START');
+
+  req.signal.addEventListener('abort', () => {
+    console.log('ABORT');
+  });
+
   try {
-    const user = await getCurrentUser(req);
+    const body = await req.arrayBuffer();
 
-    if (!user) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-    }
+    console.log('BODY', body.byteLength);
 
-    console.log('🚀 ~ POST ~ req:', req);
-    req.signal.addEventListener('abort', () => {
-      console.log('Request was aborted');
+    return Response.json({
+      ok: true,
+      size: body.byteLength,
     });
-    const formData = await req.formData();
-    const title = formData.get('title')?.toString() ?? '';
-    const description = formData.get('description')?.toString() ?? '';
+  } catch (e) {
+    console.error(e);
 
-    const file = formData.get('document') as File;
-
-    if (!file) {
-      return NextResponse.json({ message: 'No file uploaded' }, { status: 400 });
-    }
-
-    const uploaded = await saveFile(file);
-
-    const document = await prisma.document_information.create({
-      data: {
-        title,
-        description,
-        filePath: `${uploaded.filepath}/${uploaded.filename}`,
-        user_id: user.user_id,
-      },
-    });
-
-    return NextResponse.json(document);
-  } catch (err) {
-    console.error(err);
-
-    return NextResponse.json({ message: 'Upload failed' }, { status: 500 });
+    return Response.json({ error: 'failed' }, { status: 500 });
   }
 }
+
+// export async function POST(req: NextRequest) {
+//   try {
+//     const user = await getCurrentUser(req);
+
+//     if (!user) {
+//       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+//     }
+
+//     console.log('🚀 ~ POST ~ req:', req);
+//     req.signal.addEventListener('abort', () => {
+//       console.log('Request was aborted');
+//     });
+//     const formData = await req.formData();
+//     const title = formData.get('title')?.toString() ?? '';
+//     const description = formData.get('description')?.toString() ?? '';
+
+//     const file = formData.get('document') as File;
+
+//     if (!file) {
+//       return NextResponse.json({ message: 'No file uploaded' }, { status: 400 });
+//     }
+
+//     const uploaded = await saveFile(file);
+
+//     const document = await prisma.document_information.create({
+//       data: {
+//         title,
+//         description,
+//         filePath: `${uploaded.filepath}/${uploaded.filename}`,
+//         user_id: user.user_id,
+//       },
+//     });
+
+//     return NextResponse.json(document);
+//   } catch (err) {
+//     console.error(err);
+
+//     return NextResponse.json({ message: 'Upload failed' }, { status: 500 });
+//   }
+// }
 // async function uploadFileToServer(file: File, path: string): Promise<UploadResponse> {
 //   const arrayBuffer = await file.arrayBuffer();
 //   const uploadForm = new FormData();
