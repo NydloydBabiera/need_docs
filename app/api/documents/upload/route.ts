@@ -15,11 +15,11 @@ interface UploadResponse {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await getCurrentUser(req);
+    // const user = await getCurrentUser(req);
 
-    if (!user) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-    }
+    // if (!user) {
+    //   return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    // }
 
     console.log('🚀 ~ POST ~ req:', req);
 
@@ -39,8 +39,8 @@ export async function POST(req: NextRequest) {
       data: {
         title,
         description,
-        filePath: `${user?.folder_location}/${uploaded.filename}`,
-        user_id: user.user_id,
+        filePath: `${uploaded.filename}`,
+        user_id: 1,
       },
     });
 

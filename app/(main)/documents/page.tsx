@@ -37,7 +37,7 @@ const fields: FormField[] = [
     accept: '.pdf,.doc,.docx,.png',
   },
 ];
-
+const filePath = process.env.NEXT_PUBLIC_FILE_SERVER || '/uploads/documents';
 export default function DocumentList() {
   const initialValues = {
     title: '',
@@ -190,7 +190,7 @@ export default function DocumentList() {
                 key={doc.document_id}
                 title={doc.title}
                 subtitle={doc.description}
-                onClick={() => window.open(`${doc.filePath}`)}
+                onClick={() => window.open(`${filePath}/${doc.filePath}`)}
                 // onClick={async () => await fetchEventsTasks(event)}
                 floating
               ></Card>
