@@ -19,7 +19,7 @@ export function parseMultipart(req: Request): Promise<ParsedMultipart> {
     "🚀 ~ parseMultipart ~ req.headers.get('content-type'):",
     req.headers.get('content-type')
   );
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     console.log('🚀 ~ parseMultipart ~ parseMultipart: 1');
     const fields: Record<string, string> = {};
     const files: Record<string, ParsedFile> = {};
@@ -68,20 +68,32 @@ export function parseMultipart(req: Request): Promise<ParsedMultipart> {
     console.log('🚀 ~ parseMultipart ~ parseMultipart: 10');
 
     console.log('🚀 ~ parseMultipart ~ req.bodyUsed:', req.bodyUsed);
-    req
-      .arrayBuffer()
-      .then((buffer) => {
-        const body = Buffer.from(buffer);
-        console.log('got body', body.length);
-        console.log('writing', body.length);
+    try {
+      console.log('Reading body...');
 
-        bb.write(body);
+      const buffer = await req.arrayBuffer();
 
-        console.log('ending');
+      console.log('Read complete', buffer.byteLength);
 
-        bb.end();
-      })
-      .catch(reject);
+      bb.end(Buffer.from(buffer));
+    } catch (err) {
+      console.error('arrayBuffer failed');
+      console.error(err);
+    }
+    // req
+    //   .arrayBuffer()
+    //   .then((buffer) => {
+    //     const body = Buffer.from(buffer);
+    //     console.log('got body', body.length);
+    //     console.log('writing', body.length);
+
+    //     bb.write(body);
+
+    //     console.log('ending');
+
+    //     bb.end();
+    //   })
+    //   .catch(reject);
     console.log('🚀 ~ parseMultipart ~ parseMultipart: 11');
   });
 }
