@@ -15,14 +15,16 @@ interface UploadResponse {
 
 export async function POST(req: NextRequest) {
   try {
-    // const user = await getCurrentUser(req);
+    const user = await getCurrentUser(req);
 
-    // if (!user) {
-    //   return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-    // }
+    if (!user) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
 
     console.log('🚀 ~ POST ~ req:', req);
-
+    req.signal.addEventListener('abort', () => {
+      console.log('Request was aborted');
+    });
     const formData = await req.formData();
     const title = formData.get('title')?.toString() ?? '';
     const description = formData.get('description')?.toString() ?? '';
@@ -39,8 +41,8 @@ export async function POST(req: NextRequest) {
       data: {
         title,
         description,
-        filePath: `${uploaded.filename}`,
-        user_id: 1,
+        filePath: `${uploaded.filepath}/${uploaded.filename}`,
+        user_id: user.user_id,
       },
     });
 
